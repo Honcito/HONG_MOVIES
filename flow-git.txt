@@ -1,0 +1,12 @@
+1. Inicializar Git en tu carpeta local
+    git init
+2. Conectar tu repositorio local al remoto
+    git remote add origin https://github.com/Honcito/HONG_MOVIES.git
+3. Confirmar que está bien conectado
+    git remote -v
+4. Crear tu primer commit
+    git add .
+    git commit -m "Initial commit"
+5. Subir al repositorio
+    git branch -M main
+    git push -u origin main

@@ -1,0 +1,86 @@
+# FLOW - Proyecto Backend Servidor de Películas
+
+## 1. Inicializar proyecto
+npm init -y
+
+## 2. Instalar dependencias
+npm install express mongoose dotenv jsonwebtoken bcryptjs cors
+
+# Explicación:
+# express: Servidor web
+# mongoose: ORM para MongoDB
+# dotenv: Variables de entorno
+# jsonwebtoken: Autenticación JWT
+# bcryptjs: Encriptación de contraseñas
+# cors: Control de accesos cross-origin
+
+## 3. Instalar dependencias de desarrollo
+npm install nodemon --save-dev
+
+# nodemon: Reinicio automático del servidor en desarrollo
+
+## 4. Estructura inicial de carpetas
+/backend
+├── controllers
+├── middlewares
+├── models
+├── routes
+├── utils
+├── uploads (si usas para subir algo)
+├── .env
+├── server.js
+├── flow.txt
+
+## 5. Configuración de scripts en package.json
+"scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+}
+
+## 6. Configurar .env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/nombre_de_tu_db
+JWT_SECRET=tu_clave_secreta_segura
+SMB_USER=tu_usuario_smb
+SMB_PASSWORD=tu_password_smb
+SMB_PATH=//tuServidorUbuntu/shared/private_videos
+
+## 7. Crear conexión a MongoDB
+# Archivo: config/db.js
+
+## 8. Crear modelos
+# User.js
+# Movie.js
+
+## 9. Crear controladores
+# authController.js
+# movieController.js
+
+## 10. Crear rutas
+# authRoutes.js
+# movieRoutes.js
+
+## 11. Configurar middlewares
+# authMiddleware.js para proteger rutas
+
+## 12. Implementar registro y login con JWT
+
+## 13. Implementar control de roles y permisos
+
+## 14. Implementar rutas para:
+# - Listar películas disponibles
+# - Solicitar acceso a películas
+# - Servir vídeos protegidos
+
+## 15. Añadir protección de seguridad básica
+# - Helmet (opcional)
+# - Express-rate-limit (opcional)
+# - Validaciones con express-validator (opcional)
+
+## 16. Probar la API con Postman
+
+## 17. Documentar endpoints
+
+## 18. Configurar control de errores (middlewares de error global)
+
+## 19. Continuar con el frontend cuando el backend esté estable
