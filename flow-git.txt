@@ -7,6 +7,9 @@
 4. Crear tu primer commit
     git add .
     git commit -m "Initial commit"
+5. Pull para integrar los cambios remotos realizados en el repositorio "README.md"
+    git pull origin main --rebase (El --rebase hace que tus commits locales se apliquen encima de los que ya están en remoto, evitando merges innecesarios.)
+
 5. Subir al repositorio
     git branch -M main
     git push -u origin main
