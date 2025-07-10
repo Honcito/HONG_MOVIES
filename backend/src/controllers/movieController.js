@@ -57,19 +57,20 @@ async function getMovieTrailers(tmdbMovieId) {
     );
 
     // Filtramos para obtener solo los videos de YouTube que son de tipo "Trailer"
-    // Y nos aseguramos de que tengan una 'key' (identificador de YouTube)
+    // y que tengan una 'key' (identificador de YouTube).
     const trailers = response.data.results.filter(
       (video) => video.site === "YouTube" && video.type === "Trailer" && video.key
     );
 
     if (trailers.length > 0) {
-      // ¡ESTA ES LA LÍNEA CORRECTA!
-      // Usamos la 'key' (el identificador único del video de YouTube)
-      // del primer tráiler encontrado para construir la URL.
-      return `https://www.youtube.com/watch?v=`; 
+      // ¡ESTA ES LA LÍNEA CORRECTA QUE INCLUYE LA KEY DEL TRÁILER!
+      // Usamos la sintaxis ${variable} dentro de las comillas invertidas (``)
+      // para insertar el valor de trailers[0].key en la URL.
+      // Aquí es donde se inserta la 'key' real del video de YouTube
+      return `https://www.youtube.com/watch?v=${trailers[0].key}`; 
       
-      // Si prefieres la URL corta de YouTube (también correcta):
-      // return `https://youtu.be/`;
+      // Si prefieres la URL corta de YouTube, que también funciona:
+      // return `https://youtu.be/${trailers[0].key}`;
     }
     
     return null; // No se encontraron trailers válidos
