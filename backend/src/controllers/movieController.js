@@ -61,8 +61,10 @@ async function getMovieTrailers(tmdbMovieId) {
     );
 
     if (trailers.length > 0) {
-      // ¡CORRECCIÓN AQUÍ! Quita el '0' extra
-      return `http://googleusercontent.com/youtube.com/${trailers[0].key}`;
+      // ¡CORRECCIÓN APLICADA AQUÍ! Usamos la URL correcta de YouTube
+      return `https://www.youtube.com/watch?v=`; // URL estándar
+      // O si prefieres la URL corta:
+      // return `https://youtu.be/`;
     }
     return null; // No se encontraron trailers
   } catch (error) {
