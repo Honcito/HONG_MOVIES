@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-//import movieRoutes from './routes/movieRoutes.js';
+import movieRoutes from './routes/movieRoutes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
 
@@ -28,14 +28,14 @@ connectDB();
 // Import routes
 app.use("/api/auth", authRoutes);
 app.use('/api/users', userRoutes);
-//app.use('/api/movies', movieRoutes);
+app.use('/api/movies', movieRoutes);
 
 
 // Middleware for global error handling
 app.use(errorHandler);
 
 // Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server is running on port ${PORT}`);
 });

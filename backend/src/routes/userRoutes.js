@@ -1,6 +1,6 @@
 import express from 'express';
 import { userValidation } from '../validation/userValidation.js';
-import { verifyToken } from '../middlewares/auth..js';
+import { verifyToken } from '../middlewares/auth.js';
 import { validateFields } from '../middlewares/validateFields.js';
 import { isAdmin } from '../middlewares/isAdmin.js';
 import {
