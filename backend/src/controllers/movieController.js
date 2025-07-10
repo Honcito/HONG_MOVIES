@@ -56,20 +56,26 @@ async function getMovieTrailers(tmdbMovieId) {
       }
     );
 
+    // Filtramos para obtener solo los videos de YouTube que son de tipo "Trailer"
+    // Y nos aseguramos de que tengan una 'key' (identificador de YouTube)
     const trailers = response.data.results.filter(
-      (video) => video.site === "YouTube" && video.type === "Trailer"
+      (video) => video.site === "YouTube" && video.type === "Trailer" && video.key
     );
 
     if (trailers.length > 0) {
-      // ¡CORRECCIÓN APLICADA AQUÍ! Usamos la URL correcta de YouTube
-      return `https://www.youtube.com/watch?v=`; // URL estándar
-      // O si prefieres la URL corta:
+      // ¡ESTA ES LA LÍNEA CORRECTA!
+      // Usamos la 'key' (el identificador único del video de YouTube)
+      // del primer tráiler encontrado para construir la URL.
+      return `https://www.youtube.com/watch?v=`; 
+      
+      // Si prefieres la URL corta de YouTube (también correcta):
       // return `https://youtu.be/`;
     }
-    return null; // No se encontraron trailers
+    
+    return null; // No se encontraron trailers válidos
   } catch (error) {
     console.error(
-      `Error fetching trailers for TMDB ID ${tmdbMovieId}:`,
+      `Error al obtener trailers para TMDB ID ${tmdbMovieId}:`,
       error.message
     );
     return null;
