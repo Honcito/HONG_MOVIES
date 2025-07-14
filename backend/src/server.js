@@ -18,12 +18,13 @@ const app = express();
 // Middleware
 app.use(limiter); // Apply rate limiting middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://hong.sytes.net"],
     credentials: true,
 }));
-app.use(helmet());
-app.use(cookieParser());
+//app.use(helmet());
+
 
 // Connect to the database
 connectDB();
