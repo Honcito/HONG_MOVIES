@@ -290,7 +290,8 @@ export const syncMoviesWithTMDB = async (req, res) => {
 
 export const getMovies = async (req, res) => {
   try {
-    const userRole = req.user && req.user.role; // Asume que req.user.role contiene 'admin' o 'user'
+    const userRole = req.user && req.user.rol; // Asume que req.user.rol contiene 'admin' o 'user'
+    console.log("Usuario autenticado:", req.user);
 
     // Obtén todas las películas visibles por defecto (o según cualquier otro filtro general)
     // No filtramos por `visible` aquí si todos deben ver al menos el tráiler.
