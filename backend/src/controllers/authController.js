@@ -4,7 +4,7 @@ import { generateJWT } from "../utils/generateJWT.js";
 // Register a new user
 export async function register(req, res, next) {
   try {
-    const { username, email, password, rol } = req.body;
+    const { username, email, password } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
@@ -15,23 +15,17 @@ export async function register(req, res, next) {
     }
 
     // Create and save the new user
-    const user = new User({ username, email, password, rol });
+    const user = new User({ username, email, password });
     const savedUser = await user.save();
 
     // Generate JWT token
     const token = generateJWT(savedUser);
 
-    // Send token as a secure cookie
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      sameSite: "strict",
-    });
-
+    // Respond with user info and token (no cookie)
     res.status(201).json({
       success: true,
       message: "User registered successfully",
+      token,  // <-- aquí va el token en JSON
       user: {
         id: savedUser._id,
         username: savedUser.username,
@@ -59,6 +53,7 @@ export async function login(req, res, next) {
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      console.log("Contraseña inválida, la comparación falló.");
       return res
         .status(400)
         .json({ success: false, message: "Invalid password" });
@@ -66,17 +61,11 @@ export async function login(req, res, next) {
 
     const token = generateJWT(user);
 
-    // Send token in cookie
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: "strict",
-    });
-
+    // Respond with user info and token (no cookie)
     res.status(200).json({
       success: true,
       message: "Login successful",
+      token,  // <-- aquí va el token en JSON
       user: {
         id: user._id,
         username: user.username,
@@ -92,6 +81,6 @@ export async function login(req, res, next) {
 
 // Logout
 export async function logout(req, res) {
-  res.clearCookie("token");
+  // Ya no hay cookie que borrar
   res.status(200).json({ success: true, message: "Logged out successfully" });
 }

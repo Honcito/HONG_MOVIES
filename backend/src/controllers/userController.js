@@ -10,6 +10,31 @@ export async function getAllUsers(req, res) {
   }
 }
 
+export async function createUser(req, res) {
+  try {
+    const { username, email, rol, password } = req.body;
+
+    if (!username || !email || !rol || !password) {
+      return res.status(400).json({ message: "Faltan campos obligatorios" });
+    }
+
+    // Verificar si el usuario ya existe
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "El usuario ya existe" });
+    }
+
+    const user = new User({ username, email, rol, password });
+    await user.save();
+
+    res.status(201).json(user);
+  } catch (error) {
+    console.error("Error in createUser", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+
 export async function getUserById(req, res) {
   try {
     const user = await User.findById(req.params.id);

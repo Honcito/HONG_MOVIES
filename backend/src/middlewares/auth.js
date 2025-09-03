@@ -1,33 +1,32 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken'; // Asegúrate de que importas jwt
 
 export function verifyToken(req, res, next) {
-  // Primero intentamos leer el token de la cookie
-  const tokenFromCookie = req.cookies?.token;
+    let token = null;
+    const authHeader = req.headers["authorization"];
 
-  // Luego intentamos desde el header Authorization
-  const authHeader = req.headers["authorization"];
-  const tokenFromHeader = authHeader?.startsWith("Bearer ")
-    ? authHeader.split(" ")[1]
-    : null;
+    if (authHeader?.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+    } else if (req.query.token) {
+        token = req.query.token;
+    }
 
-  const token = tokenFromCookie || tokenFromHeader;
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: "No token provided in Authorization header or query",
+        });
+    }
 
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: "No token provided",
-    });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Asignamos el payload al request
-    next();
-  } catch (error) {
-    console.error("Token verification error:", error);
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
-  }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        console.log("Token verificado correctamente:", decoded);
+        next();
+    } catch (error) {
+        console.error("Token verification error:", error);
+        return res.status(401).json({
+            success: false,
+            message: "Invalid or expired token",
+        });
+    }
 }

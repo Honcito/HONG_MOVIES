@@ -8,13 +8,16 @@ import {
     getUserById,
     updateUser,
     deleteUser,
+    createUser
 } from '../controllers/userController.js'
+import { isSuperAdmin } from '../middlewares/isSuperAdmin.js';
 
 const router = express.Router();
 
 router.get('/', verifyToken, isAdmin, getAllUsers);
+router.post('/', verifyToken, isAdmin, createUser);
 router.get('/:id', verifyToken, isAdmin, getUserById);
-router.put('/:id', verifyToken, isAdmin, userValidation, validateFields, updateUser);
-router.delete('/:id', verifyToken, isAdmin, deleteUser);
+router.put('/:id', verifyToken, isSuperAdmin, userValidation, validateFields, updateUser);
+router.delete('/:id', verifyToken, isSuperAdmin, deleteUser);
 
 export default router;

@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 
 # Exclude .txt files
 *.txt
+
+ecosystem.config.cjs

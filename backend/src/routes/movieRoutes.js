@@ -1,78 +1,76 @@
 // routes/movieRoutes.js
 import express from "express";
-import fs from 'fs';
-import path from "path";
+import Movie from "../models/Movie.js";
 import {
-  syncMoviesWithTMDB, /* otras funciones de tu controlador */
+  syncMoviesWithTMDB,
   getMovies,
   deleteMovie,
+  createMovie,
+  updateMovie,
+  streamPrivateVideo
 } from "../controllers/movieController.js";
 
 // Importa tus middlewares de autenticación y autorización
 import { verifyToken } from "../middlewares/auth.js"; // Para verificar el JWT
 import { isAdmin } from "../middlewares/isAdmin.js"; // Para verificar el rol de administrador
-
+import { isSuperAdmin } from "../middlewares/isSuperAdmin.js"; // Importa el nuevo middleware
 
 const router = express.Router();
 
-// Ruta para sincronizar películas
-// Requiere que el usuario esté autenticado (verifyToken)
-// Y que tenga el rol de administrador (isAdmin)
-router.post("/sync-movies", verifyToken, isAdmin, syncMoviesWithTMDB);
-// Ruta para obtener todas las películas de la base de datos, no requiere rol
-router.get('/', verifyToken, getMovies);
-// Ruta para eliminar película de la bd requiere role: admin
-router.delete('/:id', verifyToken, isAdmin, deleteMovie)
+// ----------------------------------------------------
+// RUTAS PÚBLICAS (ACCESIBLES POR TODOS)
+// ----------------------------------------------------
 
-router.get('/private_videos/:fileName', verifyToken, isAdmin, async (req, res) => {
-  const fileName = req.params.fileName;
-
-  if (fileName.includes('..')) {
-    return res.status(400).json({ message: 'Nombre de archivo inválido.' });
-  }
-
-  const filePath = path.join(process.env.LOCAL_VIDEO_PATH, fileName);
-
-  console.log('Buscando archivo:', filePath);
-
-  if (!fs.existsSync(filePath)) {
-    console.error('Archivo no encontrado:', filePath);
-    return res.status(404).send('Archivo no encontrado.');
-  }
-
-  const stat = fs.statSync(filePath);
-  const fileSize = stat.size;
-  const range = req.headers.range;
-
-  if (range) {
-    const parts = range.replace(/bytes=/, "").split("-");
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-
-    if (start >= fileSize || end >= fileSize) {
-      return res.status(416).send('Requested range not satisfiable');
-    }
-
-    const chunkSize = (end - start) + 1;
-    const fileStream = fs.createReadStream(filePath, { start, end });
-
-    res.writeHead(206, {
-      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunkSize,
-      'Content-Type': 'video/mp4',
-    });
-
-    fileStream.pipe(res);
-  } else {
-    res.writeHead(200, {
-      'Content-Length': fileSize,
-      'Content-Type': 'video/mp4',
-    });
-
-    fs.createReadStream(filePath).pipe(res);
+// Ruta para obtener películas públicas.
+// **Esta ruta más específica debe ir antes de /:id.**
+router.get('/public', async (req, res) => {
+  try {
+    const movies = await Movie.find({ visible: true }).select("tmdb_id title original_title poster_path");
+    res.json(movies);
+  } catch (err) {
+    console.error("Error en /api/movies/public:", err);
+    res.status(500).json({ error: "Error al obtener las películas" });
   }
 });
+
+// Ruta para obtener una sola película por ID.
+// (Ahora que '/public' está antes, esta ruta no se confundirá)
+router.get('/:id', async (req, res) => {
+  try {
+    const movie = await Movie.findById(req.params.id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Película no encontrada' });
+    }
+    res.json(movie);
+  } catch (err) {
+    console.error("Error en GET /api/movies/:id", err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Ruta para obtener todas las películas.
+// No requiere autenticación, por lo que cualquiera puede ver la lista.
+router.get('/', getMovies);
+
+// ----------------------------------------------------
+// RUTAS PROTEGIDAS (REQUIEREN AUTENTICACIÓN Y ROLES)
+// ----------------------------------------------------
+
+// Ruta para sincronizar películas con TMDB (admin o superadmin)
+router.post("/sync-movies", verifyToken, isAdmin, syncMoviesWithTMDB);
+
+// Ruta para eliminar película de la base de datos (solo superadmin)
+router.delete('/:id', verifyToken, isSuperAdmin, deleteMovie);
+
+// Ruta para reproducir videos privados (requiere estar logueado)
+router.get("/private_videos/:id", verifyToken, streamPrivateVideo);
+
+// Crear nueva película
+router.post("/", verifyToken, isSuperAdmin, createMovie);
+
+// Actualizar película existente
+router.put("/:id", verifyToken, isSuperAdmin, updateMovie);
+
 
 
 export default router;
