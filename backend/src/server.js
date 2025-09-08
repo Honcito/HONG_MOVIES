@@ -27,7 +27,7 @@ app.use(express.json());
 // Se ha comentado la configuración de CORS en Express.
 // La gestión de CORS se debe mover a la configuración de un proxy inverso
 // como Nginx para evitar el error de "múltiples valores".
-// const allowedOrigins = ['http://localhost:5173', 'http://hong.sytes.net'];
+// const allowedOrigins = ['http://localhost:5173', 'http://hong.algo.es'];
 // app.use(cors({
 //     origin: function (origin, callback) {
 //         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
