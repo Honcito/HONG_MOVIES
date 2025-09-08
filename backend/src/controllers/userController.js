@@ -48,24 +48,43 @@ export async function getUserById(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, rol } = req.body;
-    if (!req.body || Object.keys(req.body).length === 0) {
+    const { username, email, rol, password } = req.body;
+    
+    // Check if the request body is empty.
+    if (Object.keys(req.body).length === 0) {
       return res.status(400).json({ message: "req body params is empty" });
+    }
+
+    const updateFields = {};
+
+    if (username) updateFields.username = username;
+    if (email) updateFields.email = email;
+    if (rol) updateFields.rol = rol;
+
+    // Only update the password if it's provided in the request body.
+    if (password) {
+      // Hash the new password before updating
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateFields.password = hashedPassword;
     }
 
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      { username, email, rol },
-      {
-        new: true,
-      }
+      updateFields, // Pass the updateFields object
+      { new: true, runValidators: true } // runValidators ensures schema validation is applied on update
     );
 
-    if (!updatedUser)
+    if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
-    res.status(200).json(updatedUser);
+    }
+    
+    // Remove password from the response for security
+    const userWithoutPassword = updatedUser.toObject();
+    delete userWithoutPassword.password;
+
+    res.status(200).json(userWithoutPassword);
   } catch (error) {
-    console.log("Error in updateUser", error);
+    console.error("Error in updateUser", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }

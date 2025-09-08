@@ -373,3 +373,31 @@ export const updateMovie = async (req, res) => {
   }
 };
 
+
+export const searchMovies = async (req, res) => {
+  try {
+    const { query } = req.query; // Obtiene el valor del query parameter 'query'
+
+    if (!query) {
+      // Si no hay término de búsqueda, retorna un error 400
+      return res.status(400).json({ message: 'Se requiere un término de búsqueda.' });
+    }
+
+    // Usamos $or para buscar en el título O en los géneros
+    const movies = await Movie.find({
+      $or: [
+        // Búsqueda por título insensible a mayúsculas/minúsculas
+        { title: { $regex: query, $options: 'i' } }, 
+        // Búsqueda por género insensible a mayúsculas/minúsculas
+        { genres: { $regex: query, $options: 'i' } } 
+      ]
+    }).limit(20); // Limita los resultados a 20 películas para mayor eficiencia
+
+    // Envía los resultados de la búsqueda
+    res.status(200).json(movies);
+  } catch (error) {
+    // Maneja cualquier error interno del servidor
+    res.status(500).json({ message: 'Error en la búsqueda de películas', error: error.message });
+  }
+};
+

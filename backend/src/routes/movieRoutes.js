@@ -7,7 +7,8 @@ import {
   deleteMovie,
   createMovie,
   updateMovie,
-  streamPrivateVideo
+  streamPrivateVideo,
+  searchMovies
 } from "../controllers/movieController.js";
 
 // Importa tus middlewares de autenticación y autorización
@@ -33,24 +34,14 @@ router.get('/public', async (req, res) => {
   }
 });
 
-// Ruta para obtener una sola película por ID.
-// (Ahora que '/public' está antes, esta ruta no se confundirá)
-router.get('/:id', async (req, res) => {
-  try {
-    const movie = await Movie.findById(req.params.id);
-    if (!movie) {
-      return res.status(404).json({ message: 'Película no encontrada' });
-    }
-    res.json(movie);
-  } catch (err) {
-    console.error("Error en GET /api/movies/:id", err);
-    res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
+
 
 // Ruta para obtener todas las películas.
 // No requiere autenticación, por lo que cualquiera puede ver la lista.
 router.get('/', getMovies);
+
+// Ruta para realizar búsquedas por título o género
+router.get("/search", searchMovies)
 
 // ----------------------------------------------------
 // RUTAS PROTEGIDAS (REQUIEREN AUTENTICACIÓN Y ROLES)
@@ -70,6 +61,23 @@ router.post("/", verifyToken, isSuperAdmin, createMovie);
 
 // Actualizar película existente
 router.put("/:id", verifyToken, isSuperAdmin, updateMovie);
+
+// Ruta para obtener una sola película por ID.
+// (Ahora que '/public' está antes, esta ruta no se confundirá)
+router.get('/:id', async (req, res) => {
+  try {
+    const movie = await Movie.findById(req.params.id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Película no encontrada' });
+    }
+    res.json(movie);
+  } catch (err) {
+    console.error("Error en GET /api/movies/:id", err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+
 
 
 
