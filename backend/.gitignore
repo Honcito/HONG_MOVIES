@@ -142,3 +142,6 @@ vite.config.ts.timestamp-*
 *.txt
 
 ecosystem.config.cjs
+
+generar-arbol.js
+generate-secret-key.js
