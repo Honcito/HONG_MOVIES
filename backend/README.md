@@ -147,7 +147,7 @@ Authorization: Bearer <tu_token_jwt>
 | Método | Endpoint                | Descripción                                               | Autorización |
 | POST   | /api/movies/sync-movies | Sincronizar películas del servidor Ubuntu y TMDB          | 🔑 Sí (superadmin) |
 | GET    | /api/movies             | Listar todas las películas (datos TMDB + servidor)        | 🔑 Sí (admin/superadmin) |
-| GET    | /api/movies/public      | Listar películas públicas (hero) | ❌ No |
+| GET    | /api/movies/public      | Listar películas públicas (hero)                          | ❌ No |
 | GET    | /api/movies/stream/:id  | Streaming privado de una película                         | 🔑 Sí (admin/superadmin) |
 | GET    | /api/movies/search?query=<título o género> | Buscar películas por título o género   | 🔑 Sí (admin/superadmin) |
 | PUT    | /api/movies/:id         | Actualizar película manualmente en DB                     | 🔑 Sí (superadmin) |
