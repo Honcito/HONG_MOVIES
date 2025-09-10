@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 
-dotenv.config();
+// dotenv.config();
 
 // Asegúrate de que tus credenciales TMDB y rutas estén en tus variables de entorno
 const TMDB_API_KEY = process.env.TMDB_API_KEY;

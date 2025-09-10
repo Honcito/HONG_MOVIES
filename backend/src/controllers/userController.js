@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import bcrypt from "bcryptjs";
 import dotenv from 'dotenv';
 
-dotenv.config();
+// dotenv.config();
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
