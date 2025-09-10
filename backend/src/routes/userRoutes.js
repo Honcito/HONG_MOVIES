@@ -8,7 +8,8 @@ import {
     getUserById,
     updateUser,
     deleteUser,
-    createUser
+    createUser,
+    forgotPassword
 } from '../controllers/userController.js'
 import { isSuperAdmin } from '../middlewares/isSuperAdmin.js';
 
@@ -19,5 +20,6 @@ router.post('/', verifyToken, isAdmin, createUser);
 router.get('/:id', verifyToken, isAdmin, getUserById);
 router.put('/:id', verifyToken, isSuperAdmin, userValidation, validateFields, updateUser);
 router.delete('/:id', verifyToken, isSuperAdmin, deleteUser);
+router.post('/forgot-password', forgotPassword);
 
 export default router;
