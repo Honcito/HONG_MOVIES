@@ -163,8 +163,23 @@ try {
   const user = await User.findOne({
     resetPasswordToken: hashedToken,
     resetPasswordExpire: { $gt: Date.now() }, // El símbolo $gt = greater than ()
-  })
+  });
+
+  if (!user) {
+    return res.status(200).json({ message: 'El token es inválido o ha expirado.' });
+  }
+
+  // Actualizar la contraseña del usuario
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(newPassword, salt);
+  user.resetPasswordToken = undefined; // Eliminar el token para que no pueda ser reutilizado
+  user.resetPasswordExpire = undefined;
+
+  await User.save();
+
+  res.status(200).json({ message: 'Contraseña actualizada con éxito.' });
 } catch (error) {
-  
+  console.error('Error en resetPassword', error);
+  res.status(500).json({ message: 'Error interno del servidor.' });
 }
 }
