@@ -4,15 +4,17 @@ import crypto from 'crypto';
 import bcrypt from "bcryptjs";
 import dotenv from 'dotenv';
 
-// dotenv.config();
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
-  aut: {
+  auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   }
 });
+
+console.log("Credenciales de email:", process.env.EMAIL_USER, process.env.EMAIL_PASS)
 
 export async function getAllUsers(req, res) {
   try {
@@ -47,7 +49,6 @@ export async function createUser(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
-
 
 export async function getUserById(req, res) {
   try {
@@ -117,69 +118,79 @@ export async function deleteUser(req, res) {
 }
 
 export async function forgotPassword(req, res) {
-  try{
+  let user;
+  try {
     const { email } = req.body;
-  // Buscar el usuario en la base de datos
-  const user = await User.findOne({ email });
-  const FRONTEND_URL = process.env.FRONTEND_URL;
+    user = await User.findOne({ email });
+    const FRONTEND_URL = process.env.FRONTEND_URL;
 
-  if (!user) {
-    // Si el usuario no existe se envía una respuesta 200 ok por seguridad, Al enviar siempre una respuesta 200 y el mismo mensaje genérico, un atacante no puede distinguir si el correo existe o no
-    return res.status(200).json({ message: 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.' });
-  }
+    if (!user) {
+      return res.status(200).json({ message: 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.' });
+    }
 
-  // Crear la URL de reseteo (Asegurarse de que la URL apunte al frontend)
-  const resetUrl = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
+    // Genera el token plano
+    const resetToken = crypto.randomBytes(20).toString('hex');
 
-  // Configurar y enviar correo
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: user.email,
-    subject: 'Recuperación de contraseña',
-    text: `Para restablecer tu contraseña, haz clic en el siguiente enlace: ${resetUrl}`
-  };
+    // Hashea el token plano para guardarlo de forma segura
+    user.resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
 
-  await transporter.sendMail(mailOptions);
+    user.resetPasswordExpire = Date.now() + 60 * 60 * 1000; // Expira en 1 hora
 
-  res.status(200).json({ message: 'Correo de recuperación enviado con éxito.' });
+    await user.save({ validateBeforeSave: false });
+
+    // Crea la URL con el token plano
+    const resetUrl = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: 'Recuperación de contraseña',
+      text: `Para restablecer tu contraseña, haz clic en el siguiente enlace: ${resetUrl}`
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'Correo de recuperación enviado con éxito.' });
   } catch (error) {
+    if (user) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+    }
     console.error('Error en forgotPassword:', error);
     res.status(500).json({ message: 'Error interno del servidor al procesar la solicitud.' });
   }
 };
 
 export async function resetPassword(req, res) {
-try {
-  const { token } = req.query; // En este caso el token viene como parámetro de consulta de la URL
-  const { newPassword } = req.body;
+  try {
+    const { token } = req.query;
+    const { newPassword } = req.body;
 
-  // Hashear el token recibido para buscarlo en la base de datos
-  const hashedToken = crypto
+    const hashedToken = crypto
       .createHash('sha256')
       .update(token)
       .digest('hex');
 
-  // Buscar al usuario por el token hasheado y verificar la expiración
-  const user = await User.findOne({
-    resetPasswordToken: hashedToken,
-    resetPasswordExpire: { $gt: Date.now() }, // El símbolo $gt = greater than ()
-  });
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
 
-  if (!user) {
-    return res.status(200).json({ message: 'El token es inválido o ha expirado.' });
+    if (!user) {
+      return res.status(400).json({ message: 'El token es inválido o ha expirado.' });
+    }
+
+    user.password = newPassword;
+
+    await user.save(); 
+
+    res.status(200).json({ message: 'Contraseña actualizada con éxito.' });
+  } catch (error) {
+    console.error('Error en resetPassword', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
   }
-
-  // Actualizar la contraseña del usuario
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(newPassword, salt);
-  user.resetPasswordToken = undefined; // Eliminar el token para que no pueda ser reutilizado
-  user.resetPasswordExpire = undefined;
-
-  await User.save();
-
-  res.status(200).json({ message: 'Contraseña actualizada con éxito.' });
-} catch (error) {
-  console.error('Error en resetPassword', error);
-  res.status(500).json({ message: 'Error interno del servidor.' });
-}
 }

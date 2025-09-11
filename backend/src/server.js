@@ -15,7 +15,7 @@ dotenv.config();
 console.log("Cargando variables de entorno...");
 console.log("MONGO_URI:", process.env.MONGO_URI);
 console.log("LOCAL_VIDEO_PATH:", process.env.LOCAL_VIDEO_PATH);
-console.log("JWT_SECRET:", process.env.JWT_SECRET);
+// console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 const app = express();
 
