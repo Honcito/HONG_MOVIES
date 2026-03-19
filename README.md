@@ -159,7 +159,8 @@ El proyecto incluye una configuración de clúster para aprovechar todos los nú
 Para arrancar:Bashpm2 start ecosystem.config.json
 (Asegúrate de configurar las rutas cwd en el archivo real antes de lanzar).
 
-🔒 Nota sobre SeguridadEste repositorio no contiene credenciales reales. Los archivos ecosystem.config.json y .env están ignorados por Git siguiendo las buenas prácticas de seguridad. 
+🔒 Nota sobre Seguridad
+Este repositorio no contiene credenciales reales. Los archivos ecosystem.config.json y .env están ignorados por Git siguiendo las buenas prácticas de seguridad. 
 Utilice los archivos .example proporcionados para configurar su propio entorno.
 
 📜 LicenciaEste proyecto se distribuye bajo licencia MIT.
