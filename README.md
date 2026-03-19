@@ -61,7 +61,7 @@ Además, el acceso remoto se realiza mediante **No-IP**, que redirige la IP din�
 
 A continuación se muestra un diagrama que representa la arquitectura general del proyecto y el flujo de conexión entre el cliente, el servidor Ubuntu y la base de datos:
 
-![Arquitectura del Sistema](./backend/diagram.png)
+![Arquitectura del Sistema](backend/src/diagram.png)
 
 🗄️ Modelos principales
 
