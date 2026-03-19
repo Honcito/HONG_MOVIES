@@ -47,7 +47,8 @@ async function getMovieTrailers(tmdbMovieId) {
       (video) => video.site === "YouTube" && video.type === "Trailer" && video.key
     );
     if (trailers.length > 0) {
-      return `http://googleusercontent.com/youtube.com/${trailers[0].key}`;
+      // return `http://googleusercontent.com/youtube.com/${trailers[0].key}`;
+      return `https://www.youtube.com/embed/${trailers[0].key}`;
     }
     return null;
   } catch (error) {
@@ -125,7 +126,7 @@ async function processMovieFile(fileName) {
       runtime: fullTmdbMovie.runtime,
       director: directorInfo ? directorInfo.name : "Desconocido",
       genres: fullTmdbMovie.genres.map((g) => g.name),
-      poster_path: fullTmdbMovie.poster_path ? `${TMDB_IMAGE_BASE_URL}${fullTmdbMovie.poster_path}` : null,
+      poster_path: fullTmdbMovie.poster_path ? `${TMDB_IMAGE_BASE_URL}original${fullTmdbMovie.poster_path}` : null,
       original_language: fullTmdbMovie.original_language,
       vote_average: fullTmdbMovie.vote_average,
       vote_count: fullTmdbMovie.vote_count,
@@ -181,11 +182,30 @@ export const syncMoviesWithTMDB = async (req, res) => {
     const newMoviesData = await Promise.all(newMoviesToProcess.map(processMovieFile));
     
     // 4. Insertar las películas nuevas en la base de datos de forma masiva
-    let newOrUpdatedCount = 0;
+     let newOrUpdatedCount = 0;
+    // if (newMoviesData.length > 0) {
+    //   await Movie.insertMany(newMoviesData);
+    //   newOrUpdatedCount += newMoviesData.length;
+    //   console.log(`Se han añadido ${newMoviesData.length} películas nuevas.`);
+    // }
+
+    // 4. Insertar o Actualizar las películas de forma segura
+    // 4. Insertar o Actualizar las películas de forma segura
     if (newMoviesData.length > 0) {
-      await Movie.insertMany(newMoviesData);
-      newOrUpdatedCount += newMoviesData.length;
-      console.log(`Se han añadido ${newMoviesData.length} películas nuevas.`);
+      for (const movieData of newMoviesData) {
+        const filter = movieData.tmdb_id 
+          ? { tmdb_id: movieData.tmdb_id } 
+          : { title: movieData.title };
+
+        await Movie.findOneAndUpdate(
+          filter,
+          { $set: movieData },
+          { upsert: true, new: true }
+        );
+        // Aquí es donde se usa la variable que definimos arriba
+        newOrUpdatedCount++; 
+      }
+      console.log(`Se han procesado ${newMoviesData.length} películas.`);
     }
 
     // 5. Marcar como invisibles las películas que ya no están en la carpeta.

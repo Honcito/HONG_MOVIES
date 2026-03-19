@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import helmet from "helmet";
-// import cors from 'cors';
+import cors from 'cors';
 import { limiter } from "./middlewares/rateLimit.js";
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
@@ -41,7 +41,53 @@ app.use(express.json());
 //     credentials: true,
 // }));
 
+// 1. Definimos los orígenes permitidos
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'https://hong-cinema.netlify.app', // <-- CAMBIA ESTO POR TU URL DE NETLIFY
+  'https://hong.sytes.net'
+];
+
+// 2. Aplicamos el middleware de CORS
+app.use(cors({
+    origin: function (origin, callback) {
+        // Permitir peticiones sin origin (como apps móviles o curl)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log("Origen no permitido por CORS:", origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+}));
+
 //app.use(helmet());
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        // Permitimos que las imágenes vengan de TMDB y de tu propio servidor
+        imgSrc: ["'self'", "data:", "https://image.tmdb.org", "https://hong.sytes.net"],
+        // Permitimos que se conecte a tu API y a TMDB
+        connectSrc: ["'self'", "https://hong.sytes.net", "https://api.themoviedb.org"],
+        // Si usas fuentes externas (Google Fonts), añádelas aquí
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+    // Esto es vital para que las imágenes de TMDB no den error de "Cross-Origin"
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  })
+);
 
 
 // Connect to the database

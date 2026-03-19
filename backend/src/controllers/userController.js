@@ -16,14 +16,22 @@ const transporter = nodemailer.createTransport({
 
 console.log("Credenciales de email:", process.env.EMAIL_USER, process.env.EMAIL_PASS)
 
+// 
+
 export async function getAllUsers(req, res) {
-  try {
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (error) {
-    console.error("Error in getAllUsers", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
+  try {
+    // 1. PROYECCIÓN: Excluye el campo 'password' para seguridad y eficiencia.
+    // 2. LÍMITE: Restringe la respuesta a un máximo de 50 documentos.
+    const users = await User.find()
+      .select('-password') // ¡Añadido! No devolver el password
+      .limit(50) // ¡Añadido! Limita la respuesta para evitar la saturación
+      .lean(); // ¡Añadido! Convierte documentos Mongoose a objetos JS planos para velocidad.
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getAllUsers", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 }
 
 export async function createUser(req, res) {
