@@ -1,0 +1,37 @@
+{
+  "apps": [
+    {
+      "name": "hong-movies-backend",
+      "cwd": "/media/hong/HONG_MOVIES",
+      "script": "backend/src/server.js",
+      "instances": "max",
+      "exec_mode": "cluster",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 3000,
+        "SECRET_KEY_JWT": "2f2c661051e4da478531b780028015add288e61be1aad5f6330ad19d5455f16d",
+        "MONGO_URI": "mongodb+srv://hong:224920@hong.kxjbc.mongodb.net/movies_app?retryWrites=true&w=majority&appName=Hong",
+        "LOCAL_VIDEO_PATH": "/media/hong/private_videos",
+        "FRONTEND_URL": "http://localhost:5173",
+        "TMDB_API_KEY": "03d91b115dd4a0af79afb4cc44a73a16",
+        "TMDB_BASE_URL": "https://api.themoviedb.org/3",
+        "TMDB_IMAGE_BASE_URL": "https://image.tmdb.org/t/p/",
+        "EMAIL_USER": "vhoncito@gmail.com",
+        "EMAIL_PASS": "sbuu hrpt jwsr yjhv"
+      }
+    },
+    {
+      "name": "black-kitchen-5000",
+      "cwd": "/media/hong/BACKEND_BLACK_KITCHEN/proyecto-final-dew",
+      "script": "backend/src/server.js",
+      "instances": "max",
+      "exec_mode": "cluster",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 5000,
+        "ADMIN_API_KEY": "black_kitchen",
+        "MONGO_URI": "mongodb+srv://hong:224920@hong.kxjbc.mongodb.net/dark_kitchen?retryWrites=true&w=majority&appName=Hong"
+      }
+    }
+  ]
+}
