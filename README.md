@@ -61,6 +61,8 @@ Además, el acceso remoto se realiza mediante **No-IP**, que redirige la IP din�
 
 A continuación se muestra un diagrama que representa la arquitectura general del proyecto y el flujo de conexión entre el cliente, el servidor Ubuntu y la base de datos:
 
+![Arquitectura del Sistema](./backend/diagram.png)
+
 🗄️ Modelos principales
 
 🎥 MovieJSON{
@@ -87,6 +89,7 @@ A continuación se muestra un diagrama que representa la arquitectura general de
   "password": "String", // cifrada con bcryptjs
   "rol": { "type": "String", "enum": ["admin", "user", "superadmin"], "default": "user" }
 }
+
 ⚙️ Configuración de entorno
 
 El sistema requiere un archivo .env en la raíz del proyecto. 
