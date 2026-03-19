@@ -1,0 +1,35 @@
+{
+  "apps": [
+    {
+      "name": "hong-movies-backend",
+      "cwd": "/ruta/en/tu/servidor/HONG_MOVIES",
+      "script": "backend/src/server.js",
+      "instances": "max",
+      "exec_mode": "cluster",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 3000,
+        "SECRET_KEY_JWT": "TU_JWT_SECRET_AQUI",
+        "MONGO_URI": "mongodb+srv://USUARIO:PASSWORD@cluster...",
+        "LOCAL_VIDEO_PATH": "/ruta/a/videos",
+        "FRONTEND_URL": "https://tu-url-final.com",
+        "TMDB_API_KEY": "TU_API_KEY_TMDB",
+        "EMAIL_USER": "tu-correo@gmail.com",
+        "EMAIL_PASS": "tu_password_de_aplicacion"
+      }
+    },
+    {
+      "name": "black-kitchen-5000",
+      "cwd": "/ruta/en/tu/servidor/OTRO_PROYECTO",
+      "script": "backend/src/server.js",
+      "instances": "max",
+      "exec_mode": "cluster",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 5000,
+        "ADMIN_API_KEY": "ejemplo_key",
+        "MONGO_URI": "mongodb+srv://USUARIO:PASSWORD@cluster..."
+      }
+    }
+  ]
+}
