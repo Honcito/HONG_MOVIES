@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import { generateJWT } from "../utils/generateJWT.js";
+import { logAuth } from '../utils/logger.js';
 
 // Register a new user
 export async function register(req, res, next) {
@@ -54,6 +55,10 @@ export async function login(req, res, next) {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       console.log("Contraseña inválida, la comparación falló.");
+      
+      // OPCIONAL: Podrías registrar también los intentos fallidos aquí
+      logAuth(email, req.ip || req.headers['x-forwarded-for'], 'N/A', 'FAILED');
+
       return res
         .status(400)
         .json({ success: false, message: "Invalid password" });
@@ -61,11 +66,18 @@ export async function login(req, res, next) {
 
     const token = generateJWT(user);
 
+    console.log("Intentando escribir log para:", user.email);
+
+    // 🛡️ REGISTRO DE AUDITORÍA: Justo antes de responder al cliente
+    // Usamos el email, la IP (detectando si viene de un proxy) y el rol del usuario
+    const userIP = req.headers['x-forwarded-for'] || req.ip;
+    logAuth(user.email, userIP, user.rol);
+
     // Respond with user info and token (no cookie)
     res.status(200).json({
       success: true,
       message: "Login successful",
-      token,  // <-- aquí va el token en JSON
+      token,  
       user: {
         id: user._id,
         username: user.username,
