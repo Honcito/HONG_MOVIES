@@ -34,14 +34,13 @@ router.get('/public', async (req, res) => {
   }
 });
 
-
-
 // Ruta para obtener todas las películas.
-// No requiere autenticación, por lo que cualquiera puede ver la lista.
+// Se añade verifyToken para que el controlador pueda identificar el ROL del usuario.
 router.get('/', getMovies);
 
-// Ruta para realizar búsquedas por título o género
-router.get("/search", searchMovies)
+// Ruta para realizar búsquedas por título o género.
+// Se añade verifyToken para identificar al usuario durante la búsqueda.
+router.get("/search", searchMovies);
 
 // ----------------------------------------------------
 // RUTAS PROTEGIDAS (REQUIEREN AUTENTICACIÓN Y ROLES)
@@ -56,29 +55,34 @@ router.delete('/:id', verifyToken, isSuperAdmin, deleteMovie);
 // Ruta para reproducir videos privados (requiere estar logueado)
 router.get("/private_videos/:id", verifyToken, streamPrivateVideo);
 
-// Crear nueva película
+// Crear nueva película (solo superadmin)
 router.post("/", verifyToken, isSuperAdmin, createMovie);
 
-// Actualizar película existente
+// Actualizar película existente (solo superadmin)
 router.put("/:id", verifyToken, isSuperAdmin, updateMovie);
 
 // Ruta para obtener una sola película por ID.
-// (Ahora que '/public' está antes, esta ruta no se confundirá)
-router.get('/:id', async (req, res) => {
+// Se añade verifyToken para permitir que Admins vean campos protegidos en el detalle.
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id);
     if (!movie) {
       return res.status(404).json({ message: 'Película no encontrada' });
     }
-    res.json(movie);
+
+    const movieData = movie.toObject();
+    const userRole = req.user?.rol;
+
+    // Lógica de privacidad: Si no es admin ni superadmin, eliminamos el path del archivo
+    if (userRole !== 'admin' && userRole !== 'superadmin') {
+      delete movieData.file_path;
+    }
+
+    res.json(movieData);
   } catch (err) {
     console.error("Error en GET /api/movies/:id", err);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
-
-
-
-
 
 export default router;
